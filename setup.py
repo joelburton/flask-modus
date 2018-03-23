@@ -23,10 +23,10 @@ if sys.argv[-1] == 'publish':
 
 setup(
     name='Flask-Modus',
-    version='0.0.2',
+    version='0.0.3',
     url='http://github.com/rhyselsmore/flask-modus',
-    author='Rhys Elsmore',
-    author_email='me@rhys.io',
+    author='Rhys Elsmore (fork by Joel Burton)',
+    author_email='me@rhys.io (joel@joelburton.com)',
     description='Flask Method Overrides.',
     long_description=open('README.rst').read() + '\n\n' +
         open('HISTORY.rst').read(),
