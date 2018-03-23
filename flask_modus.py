@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
 from werkzeug import url_decode
 
 
 class Middleware(object):
     """ WSGI Method Overriding Middleware """
-
+    
+    header_key = 'HTTP_X_HTTP_METHOD_OVERRIDE'
+    qs_key = '_method'
+    
     allowed_methods = frozenset([
         'GET',
         'HEAD',
@@ -24,25 +29,23 @@ class Middleware(object):
     def __call__(self, environ, response):
         """ Extract the new method from the Query String """
 
-        def set_method(method):
+        method = None
+        
+        # Can get from HTTP header
+        if self.header_key in environ:
+            method = environ[self.header_key]
+
+        # Or from query string
+        elif self.qs_key in environ.get('QUERY_STRING', ''):
+            args = url_decode(environ['QUERY_STRING'])
+            method = args.get(self.qs_key, '')
+            
+        if method:
+            method = method.upper().decode('utf8')            
             if method in self.allowed_methods:
-                method = method.encode('ascii', 'replace')
                 environ['REQUEST_METHOD'] = method
             if method in self.bodyless_methods:
                 environ['CONTENT_LENGTH'] = '0'
-
-        # Handle our Header Method
-        method = environ.get('HTTP_X_HTTP_METHOD_OVERRIDE', '').upper()
-        if method in self.allowed_methods:
-            set_method(method)
-            return self.app(environ, response)
-
-        # Handle our Query String Method setter
-        if '_method' in environ.get('QUERY_STRING', ''):
-            args = url_decode(environ['QUERY_STRING'])
-            method = args.get('_method', '').upper()
-            if method in self.allowed_methods:
-                set_method(method)
 
         return self.app(environ, response)
 
