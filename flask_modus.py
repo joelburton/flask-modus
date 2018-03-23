@@ -41,7 +41,7 @@ class Middleware(object):
             method = args.get(self.qs_key, '')
             
         if method:
-            method = method.upper().decode('utf8')            
+            method = method.upper()            
             if method in self.allowed_methods:
                 environ['REQUEST_METHOD'] = method
             if method in self.bodyless_methods:
